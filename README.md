@@ -1,21 +1,52 @@
-# Gamma Integration
+# Presentation Generator API
 
-This project integrates **Gamma's Public API (v0.2)** to generate AI-powered presentations (PDF or PPTX).
+Hey! This is a simple API that generates presentations using Gamma AI. Built this to integrate with our Riaa chatbot.
 
-## How to Run
-1. Clone the repo  
-   `git clone https://github.com/Jhansi672/Gamma_Integration.git`
-2. Install dependencies  
-   `pip install -r requirements.txt`
-3. Create `.env` file  
-4. Run Streamlit  
-`streamlit run app.py`
+## What does it do?
 
-## How It Works
-- `app.py`: Streamlit frontend for demo and testing.
-- `gamma_service.py`: Calls Gamma API to generate presentations.
-- Outputs are automatically downloaded as PDF or PPTX files.
+Basically, you send some text about what you want, and it creates a nice PDF or PowerPoint presentation for you. Takes about 30-60 seconds.
 
-## Security
-- API key is stored only in `.env` (not in repo).
-- HTTPS calls ensure secure data transfer.
+## Quick Start
+
+### Installation
+```bash
+# Clone or download the project
+cd your-project-folder
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Set up your API key
+# Create a .env file and add:
+GAMMA_API_KEY=your_gamma_api_key_here
+
+# Run the server
+uvicorn api:app --reload --host 0.0.0.0 --port 8000
+```
+
+The API will be running at `http://localhost:8000`
+
+### Test it out
+
+Open your browser and go to:
+```
+http://localhost:8000/docs
+```
+
+You'll see a nice interface where you can test everything. Pretty cool!
+
+## Files in this project
+
+- `api.py` - Main API code (FastAPI)
+- `gamma_service.py` - Handles the Gamma API calls
+- `app.py` - Streamlit demo (optional, just for testing)
+- `.env` - Your API keys (don't commit this!)
+- `API_DOCS.md` - Detailed API documentation for the frontend team
+
+## How it works
+
+1. User sends text → API receives it
+2. API calls Gamma to generate presentation
+3. Gamma creates the presentation (takes ~30-60 seconds)
+4. API downloads the file and saves it
+5. User gets a download link
