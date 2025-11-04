@@ -1,49 +1,60 @@
 import streamlit as st
+from gamma_service import create_presentation_from_text
 
 # ---- Page setup ----
 st.set_page_config(
-    page_title="Gamma AI Presentation Viewer",
+    page_title="AI Presentation Generator",
     page_icon="🎨",
-    layout="wide",
+    layout="centered",
 )
 
 # ---- Header ----
-st.title("🎨 Gamma AI Presentation Demo")
+st.title("🎨 AI Presentation Generator")
 st.markdown(
     """
-    This demo showcases how Gamma presentations can be viewed directly inside our platform.
-    You can paste one or more **Gamma deck URLs** below to preview them live.
+    Create brand-new **AI presentations** instantly from your input text.  
+    Just enter your topic or paragraph — I am going to generate a presentation for you in (PDF or PPTX).
     """
 )
-
 st.divider()
 
-# ---- Instructions ----
-st.subheader("📋 Paste your Gamma presentation links")
-st.caption("Example: https://gamma.app/docs/ai-trends-2025 or https://gamma.app/presentations/xyz123")
+# ---- Input Area ----
+st.subheader("Generate a Presentation")
+topic = st.text_input("Enter a topic or title:", "Top 5 Pizza Places in NYC")
 
-# ---- Input area ----
-links_input = st.text_area(
-    "Enter one or more Gamma presentation URLs (one per line):",
-    placeholder="https://gamma.app/docs/ai-trends-2025\nhttps://gamma.app/docs/marketing-deck-demo",
+content = st.text_area(
+    "Add a short description or content:",
+    "List and describe the top 5 pizza places in New York City with ratings, specialties, and unique features.",
     height=150,
 )
 
-# ---- Display area ----
-if st.button("▶️ Show Presentations"):
-    links = [link.strip() for link in links_input.splitlines() if link.strip()]
-    if not links:
-        st.warning("Please enter at least one valid Gamma presentation link.")
-    else:
-        for i, link in enumerate(links, start=1):
-            st.markdown(f"### 📑 Presentation {i}")
-            st.markdown(f"[Open in Gamma]({link})")
-            # Embedded iframe preview
-            st.components.v1.iframe(src=link, height=650, scrolling=True)
-            st.divider()
-else:
-    st.info("⬆️ Paste your Gamma deck links above and click **Show Presentations** to view them here.")
+export_as = st.selectbox("Export format", ["pdf", "pptx"])
+num_cards = st.slider("Number of slides", 1, 10, 5)
 
-# ---- Footer ----
+# ---- Button ----
+if st.button("🚀 Generate Presentation"):
+    with st.spinner("Creating your presentation... please wait ⏳"):
+        text_to_send = f"Title: {topic}\n\nContent:\n{content}"
+        result = create_presentation_from_text(text_to_send, export_as, num_cards)
+
+        if "error" in result:
+            st.error(result["error"])
+        else:
+            st.success("✅ Presentation created successfully!")
+            st.markdown(f"**Download link:** [{result['url']}]({result['url']})")
+
+            # Provide Streamlit download button
+            with open(result["file"], "rb") as f:
+                st.download_button(
+                    label=f"⬇️ Download {export_as.upper()} File",
+                    data=f,
+                    file_name=result["file"],
+                    mime=(
+                        "application/pdf"
+                        if export_as == "pdf"
+                        else "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+                    ),
+                )
+
 st.markdown("---")
-st.caption("Powered by Gamma • Streamlit Demo for internal presentation preview • Fundae AI")
+st.caption("Built by fundae AI")
